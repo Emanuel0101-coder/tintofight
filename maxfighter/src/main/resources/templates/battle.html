@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MAXFIGHTER - Batalha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #020617;
+            color: #e5e7eb;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .top-bar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .top-bar a, .top-bar form {
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .btn-link {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            background: #3b82f6;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-link:hover {
+            background: #2563eb;
+        }
+
+        .arena {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+
+        .fighter-card {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 15px;
+            width: 45%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .fighter-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .hp-bar-outer {
+            width: 100%;
+            height: 18px;
+            background: #1f2937;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            border: 1px solid #4b5563;
+        }
+
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            transition: width 0.3s ease;
+        }
+
+        .hp-text {
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .dead {
+            color: #f97373;
+        }
+
+        /* SPRITE */
+        .sprite-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 6px 0 10px 0;
+            min-height: 96px;
+        }
+
+        .fighter-sprite {
+            image-rendering: pixelated;
+            width: 96px;
+            height: 96px;
+        }
+
+        /* Ícone de veneno */
+        .status-icons {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .poison-icon {
+            font-size: 1rem;
+            color: #22c55e;
+        }
+
+        .poison-label {
+            font-size: 0.75rem;
+            color: #a3e635;
+        }
+
+        .moves-section {
+            margin-top: 8px;
+        }
+
+        .moves-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .moves-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .move-form {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .move-btn {
+            width: 100%;
+            padding: 6px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            background: #3b82f6;
+            color: #f9fafb;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .move-btn:hover {
+            background: #2563eb;
+        }
+
+        .move-btn-disabled {
+            background: #4b5563 !important;
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .move-uses {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .log-container {
+            background: #020617;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+            padding: 8px 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            line-height: 1.15; /* menos espaçamento entre linhas */
+        }
+
+        .log-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .log-line {
+            margin: 0; /* sem margem extra entre linhas */
+        }
+    </style>
+</head>
+<body>
+
+<h1>MAXFIGHTER</h1>
+
+<div class="top-bar">
+    <a class="btn-link" th:href="@{/battle/select}">Voltar para seleção</a>
+</div>
+
+<div class="arena" th:if="${player != null and ai != null}">
+
+    <!-- PLAYER -->
+    <div class="fighter-card">
+        <div class="fighter-name" th:text="${player.name}">Player</div>
+
+        <div class="stats">
+            HP:
+            <span th:text="${player.currentHp}">0</span> /
+            <span th:text="${player.maxHp}">0</span>
+            &nbsp;| Speed:
+            <span th:text="${player.speed}">0</span>
+        </div>
+
+        <div class="status-row">
+            <div class="hp-text">
+                <span th:if="${player.currentHp <= 0}" class="dead">Derrotado</span>
+                <span th:if="${player.currentHp > 0}">Em combate</span>
+            </div>
+            <div class="status-icons"
+                 th:if="${player.poisonTurnsRemaining != null and player.poisonTurnsRemaining > 0}">
+                <span class="poison-icon" title="Envenenado">☠</span>
+                <span class="poison-label"
+                      th:text="|Veneno: ${player.poisonDamagePerTurn} por ${player.poisonTurnsRemaining} turno(s)|">
+                    Veneno
+                </span>
+            </div>
+        </div>
+
+        <!-- Barra de HP do player -->
+        <div class="hp-bar-outer">
+            <div class="hp-bar-inner"
+                 th:style="|width: ${(player.currentHp * 100 / player.maxHp)}%;|"></div>
+        </div>
+
+        <!-- SPRITE DO PLAYER -->
+        <div class="sprite-wrapper">
+            <img th:if="${player.spriteUrl != null}"
+                 th:src="${player.spriteUrl}"
+                 alt="Sprite do jogador"
+                 class="fighter-sprite">
+        </div>
+
+        <!-- Golpes do player -->
+        <div class="moves-section" th:if="${player.currentHp > 0 and ai.currentHp > 0}">
+            <div class="moves-title">Seus golpes:</div>
+            <div class="moves-grid">
+                <form class="move-form"
+                      th:each="m, stat : ${player.moves}"
+                      th:action="@{'/battle/turn/' + ${stat.index}}"
+                      method="post">
+
+                    <button class="move-btn"
+                            type="submit"
+                            th:text="${m.name}"
+                            th:title="|${m.description} - Usos: ${m.remainingUses}/${m.maxUses}|"
+                            th:disabled="${m.remainingUses} <= 0"
+                            th:classappend="${m.remainingUses} <= 0 ? ' move-btn-disabled' : ''">
+                        Golpe
+                    </button>
+                    <div class="move-uses"
+                         th:text="|Usos: ${m.remainingUses}/${m.maxUses}|">
+                        Usos: 0/0
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- IA -->
+    <div class="fighter-card">
+        <div class="fighter-name" th:text="${ai.name}">IA</div>
+
+        <div class="stats">
+            HP:
+            <span th:text="${ai.currentHp}">0</span> /
+            <span th:text="${ai.maxHp}">0</span>
+            &nbsp;| Speed:
+            <span th:text="${ai.speed}">0</span>
+        </div>
+
+        <div class="status-row">
+            <div class="hp-text">
+                <span th:if="${ai.currentHp <= 0}" class="dead">Derrotado</span>
+                <span th:if="${ai.currentHp > 0}">Em combate</span>
+            </div>
+            <div class="status-icons"
+                 th:if="${ai.poisonTurnsRemaining != null and ai.poisonTurnsRemaining > 0}">
+                <span class="poison-icon" title="Envenenado">☠</span>
+                <span class="poison-label"
+                      th:text="|Veneno: ${ai.poisonDamagePerTurn}/turno, ${ai.poisonTurnsRemaining} turno(s)|">
+                    Veneno
+                </span>
+            </div>
+        </div>
+
+        <!-- Barra de HP da IA -->
+        <div class="hp-bar-outer">
+            <div class="hp-bar-inner"
+                 th:style="|width: ${(ai.currentHp * 100 / ai.maxHp)}%;|"></div>
+        </div>
+
+        <!-- SPRITE DA IA -->
+        <div class="sprite-wrapper">
+            <img th:if="${ai.spriteUrl != null}"
+                 th:src="${ai.spriteUrl}"
+                 alt="Sprite da IA"
+                 class="fighter-sprite">
+        </div>
+
+        <div class="moves-section">
+            <div class="moves-title">Golpes da IA:</div>
+            <ul style="font-size: 0.8rem; padding-left: 16px; margin: 0;">
+                <li th:each="m : ${ai.moves}"
+                    th:text="|${m.name} (${m.remainingUses}/${m.maxUses})|">
+                    Golpe IA
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div th:if="${player == null or ai == null}" style="text-align:center; margin-top: 40px;">
+    Nenhuma batalha iniciada.
+    <br>
+    <a class="btn-link" th:href="@{/battle/select}">Ir para seleção</a>
+</div>
+
+<h2>Log da Batalha</h2>
+<div class="log-container">
+    <div class="log-title">Eventos:</div>
+    <div th:if="${log != null}">
+        <div th:each="linha : ${log}" class="log-line"
+             th:text="${linha}">
+            Texto do log
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
