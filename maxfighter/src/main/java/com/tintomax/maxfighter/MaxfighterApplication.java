@@ -16,8 +16,9 @@ public class MaxfighterApplication implements CommandLineRunner {
         System.out.println("\n" +
                 "==============================================\n" +
                 "🔥 MAXFIGHTER INICIADO COM SUCESSO! 🔥\n" +
-                "➡ Batalha funcionando e rodando em:\n" +
-                "   http://localhost:8080/start\n" +
+                "➡ Tela inicial:          http://localhost:8080/\n" +
+                "➡ Seleção de lutador:    http://localhost:8080/battle/select\n" +
+                "➡ Tela de batalha:       http://localhost:8080/battle/game\n" +
                 "==============================================\n");
     }
 }

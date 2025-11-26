@@ -1,616 +1,226 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MaxFighter - Batalha</title>
-    
+
     <style>
-        /*
-         * ESTILOS CSS - TELA DE BATALHA
-         */
-
-        :root {
-            --color-bg-battle: #FFFFFF; 
-            --color-scene-border: #0000FF; 
-            --color-ui-primary: #FF7F00; 
-            --color-ui-secondary: #FFFFFF; 
-            --color-hp-full: #38B000; 
-            --color-hp-empty: #A00000; 
-            --color-text: #000000; 
-            --color-scene-background: #EED7B8; 
-            --color-poison: #9900CC;
-            --color-border-dark: #4D281F; /* Importado da tela de seleção para botões */
-        }
-
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Press Start 2P', 'Courier New', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: var(--color-bg-battle);
-            overflow: hidden;
-            image-rendering: pixelated;
+            background: #ececec;
+            font-family: "Courier New", monospace;
         }
 
-        .battle-screen {
-            width: 100%;
-            max-width: 800px; 
-            height: 100vh;
-            max-height: 600px; 
-            position: relative;
-            background-color: var(--color-scene-background);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
-
-        .battle-scene {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: calc(100% - 150px); 
-            /* 1. LOCAL PARA IMAGEM DE FUNDO DA LOJA */
-            background-image: url('start.jpeg'); 
+        .arena {
+            width: 1100px;
+            margin: 40px auto;
+            background: url('/img/tintomax_bg.png');
             background-size: cover;
-            background-position: center 20%; 
-            image-rendering: pixelated;
+            background-position: center;
+            border: 6px solid #ff7b00;
+            box-shadow: 0 0 20px #00000055;
         }
 
         .ui-top {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--color-ui-primary);
-            border-bottom: 3px solid var(--color-scene-border);
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0 10px;
-            box-sizing: border-box;
-            color: var(--color-ui-secondary);
-            font-size: 0.8rem;
-        }
-
-        .status-box {
-            display: flex;
-            flex-direction: column;
-            width: 45%;
-            padding: 5px;
-        }
-        
-        .status-box .name-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2px;
-        }
-
-        .hp-bar-container {
-            width: 100%;
-            height: 10px;
-            background-color: var(--color-hp-empty);
-            border: 1px solid var(--color-text);
+            padding: 10px 20px;
+            background: #ff7b00;
+            border-bottom: 5px solid blue;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
         }
 
         .hp-bar {
+            width: 320px;
+            height: 20px;
+            background: #550000;
+            border: 2px solid black;
+        }
+
+        .hp-inner {
             height: 100%;
-            width: 100%; 
-            background-color: var(--color-hp-full);
-            transition: width 0.5s ease;
-        }
-        
-        .status-text {
-            font-size: 0.6rem;
-        }
-        
-        .status-effect {
-            color: var(--color-poison);
-            margin-left: 5px;
+            background: green;
         }
 
+        .sprites {
+            height: 330px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            margin-top: 15px;
+        }
 
-        .ui-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
+        .sprites img {
+            width: 230px;
+            height: auto;
+        }
+
+        /* Preto e branco quando o monstro morre */
+        .fainted {
+            filter: grayscale(100%) brightness(50%);
+            opacity: 0.7;
+        }
+
+        /* Marcador de veneno */
+        .poison-badge {
+            background: purple;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .battle-bottom {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f7dcb6;
+        }
+
+        .log-box {
+            width: 55%;
+            background: white;
+            border: 6px solid blue;
+            padding: 15px;
+            font-size: 18px;
             height: 150px;
-            background-color: var(--color-ui-primary);
-            border-top: 5px solid var(--color-scene-border);
-            display: flex;
-            padding: 10px;
-            box-sizing: border-box;
+            overflow-y: auto;
         }
 
-        .dialog-box {
-            width: 65%;
-            height: 100%;
-            background-color: var(--color-ui-secondary);
-            border: 5px solid var(--color-scene-border);
-            padding: 10px;
-            box-sizing: border-box;
-            color: var(--color-text);
-            font-size: 1rem;
-            text-align: left;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
-        
-        .menu-options {
-            width: 35%;
-            height: 100%;
-            background-color: var(--color-ui-primary); 
-            border: 5px solid var(--color-scene-border);
-            border-left: none; 
-            padding: 10px;
-            box-sizing: border-box;
-            color: var(--color-ui-secondary);
-            font-size: 0.8rem;
+        .moves {
+            width: 40%;
             display: grid;
-            grid-template-columns: 1fr 1fr; 
-            gap: 5px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 10px;
         }
-        
-        .action-button {
-            background-color: var(--color-border-dark); 
-            color: var(--color-ui-secondary);
-            border: 2px solid var(--color-scene-border);
+
+        .move-btn {
+            background: #4b1e00;
+            color: white;
+            border: 3px solid blue;
+            padding: 15px;
             cursor: pointer;
-            padding: 5px;
-            font-family: inherit;
-            font-size: 0.7rem;
-            text-transform: uppercase;
+            font-size: 17px;
+            font-weight: bold;
+            text-align: center;
         }
-        
-        .action-button:disabled {
+
+        .move-btn:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
-            opacity: 0.5;
         }
-
-        /* 2. LOCAL PARA SPRITES DOS PERSONAGENS */
-        .character-sprite {
-            position: absolute;
-            z-index: 10;
-            width: 120px;
-            height: 120px;
-            display: block; 
-        }
-        
-        .character-sprite img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            image-rendering: pixelated;
-        }
-
-        /* Posição dos Sprites */
-        #sprite-p1 { bottom: 150px; left: 5%; }
-        #sprite-p2 { bottom: 250px; right: 15%; transform: scaleX(-1); }
     </style>
 </head>
-<body>
 
-    <audio id="battle-music" loop>
-        <source src="caminho/para/sua_musica_batalha.mp3" type="audio/mp3">
-        Seu navegador não suporta o elemento de áudio.
-    </audio>
+<body onload="playSelectionSound()">
 
-    <div class="battle-screen">
-        <div class="battle-scene">
-            
-            <div id="sprite-p1" class="character-sprite"></div>
+<div class="arena">
 
-            <div id="sprite-p2" class="character-sprite"></div>
+    <!-- TOPO HP -->
+    <div class="ui-top">
+
+        <!-- PLAYER -->
+        <div>
+            HP: <br>
+            <div class="hp-bar">
+                <div class="hp-inner"
+                     th:style="'width:' + (${player.currentHp} * 100 / ${player.maxHp}) + '%'">
+                </div>
+            </div>
+            <span th:text="${player.currentHp}"></span> /
+            <span th:text="${player.maxHp}"></span>
+
+            <!-- Poison -->
+            <div th:if="${player.poisonTurnsRemaining > 0}">
+                <span class="poison-badge"
+                      th:text="'Envenenado (' + ${player.poisonDamagePerTurn} + ' por turno)'"></span>
+                </div>
         </div>
 
-        <div class="ui-top">
-            <div class="status-box p1-status-box">
-                <div class="name-line">
-                    <span id="name-p1"></span>
-                    <span id="speed-p1" class="status-text">Speed: </span>
+        <!-- INIMIGO -->
+        <div style="text-align:right;">
+            HP: <br>
+            <div class="hp-bar">
+                <div class="hp-inner"
+                     th:style="'width:' + (${ai.currentHp} * 100 / ${ai.maxHp}) + '%'">
                 </div>
-                <div class="hp-bar-container">
-                    <div id="hp-p1" class="hp-bar"></div>
-                </div>
-                <span class="status-text">HP: <span id="current-hp-p1"></span>/<span id="max-hp-p1"></span> <span id="status-p1" class="status-effect"></span></span>
             </div>
+            <span th:text="${ai.currentHp}"></span> /
+            <span th:text="${ai.maxHp}"></span>
 
-            <div class="status-box p2-status-box" style="text-align: right;">
-                 <div class="name-line">
-                    <span id="speed-p2" class="status-text">Speed: </span>
-                    <span id="name-p2"></span>
-                </div>
-                <div class="hp-bar-container">
-                    <div id="hp-p2" class="hp-bar"></div>
-                </div>
-                <span class="status-text">HP: <span id="current-hp-p2"></span>/<span id="max-hp-p2"></span> <span id="status-p2" class="status-effect"></span></span>
+            <!-- Poison -->
+            <div th:if="${ai.poisonTurnsRemaining > 0}">
+                <span class="poison-badge"
+                      th:text="'Envenenado (' + ${ai.poisonDamagePerTurn} + ' por turno)'"></span>
             </div>
         </div>
 
-        <div class="ui-bottom">
-            <div id="dialog-text" class="dialog-box">
-                A batalha começa! É a vez de <span id="dialog-name"></span>.
-            </div>
-            <div id="menu-options" class="menu-options">
-                </div>
-        </div>
     </div>
 
-    <script>
-        // JAVASCRIPT - INÍCIO DA LÓGICA DE BATALHA
-        
-        let isPlayerTurn = true; 
-        
-        // Estrutura do Personagem e suas habilidades
-        class PaintEmon {
-            constructor(id, name, maxHp, speed, abilitiesString) {
-                this.id = id;
-                this.name = name;
-                this.maxHp = parseInt(maxHp);
-                this.currentHp = parseInt(maxHp);
-                this.baseSpeed = parseInt(speed); 
-                this.currentSpeed = parseInt(speed);
-                
-                this.dotDamage = 0;
-                this.dotDuration = 0; 
-                this.dotType = ''; 
-
-                this.abilities = this.parseAbilities(abilitiesString);
-            }
-            
-            parseAbilities(abilitiesString) {
-                if (!abilitiesString) return [];
-                const abilities = abilitiesString.split('|');
-                return abilities.map(ability => {
-                    const parts = ability.match(/(.*)\((.*)\)/);
-                    const name = parts ? parts[1].trim() : ability.trim();
-                    const details = parts ? parts[2].trim() : "N/A";
-                    
-                    // 4. Lógica de extração de usos: Procura por "usos:dígitos"
-                    const usesMatch = details.match(/usos:(\d+)/);
-                    const uses = usesMatch ? parseInt(usesMatch[1]) : 0;
-
-                    return { name, details, maxUses: uses, currentUses: uses };
-                });
-            }
-        }
-
-        // --- 1. CARREGAR DADOS ---
-        
-        const p1Id = localStorage.getItem('player1CharId') || 'p1_default';
-        const p2Id = localStorage.getItem('player2CharId') || 'p2_default';
-        
-        const p1 = new PaintEmon(
-            p1Id,
-            localStorage.getItem('player1CharName') || 'Puther',
-            localStorage.getItem('player1CharHP') || 150,
-            localStorage.getItem('player1CharSpeed') || 50,
-            localStorage.getItem('player1CharAbilities')
-        );
-
-        const p2 = new PaintEmon(
-            p2Id,
-            localStorage.getItem('player2CharName') || 'Paintay',
-            localStorage.getItem('player2CharHP') || 150,
-            localStorage.getItem('player2CharSpeed') || 50,
-            localStorage.getItem('player2CharAbilities')
-        );
-        
-        
-        // --- 2. ELEMENTOS DA UI ---
-
-        const nameP1 = document.getElementById('name-p1');
-        const speedP1 = document.getElementById('speed-p1');
-        const maxHpP1 = document.getElementById('max-hp-p1');
-        const currentHpP1 = document.getElementById('current-hp-p1');
-        const hpBarP1 = document.getElementById('hp-p1');
-        const statusP1 = document.getElementById('status-p1');
-
-        const nameP2 = document.getElementById('name-p2');
-        const speedP2 = document.getElementById('speed-p2');
-        const maxHpP2 = document.getElementById('max-hp-p2');
-        const currentHpP2 = document.getElementById('current-hp-p2');
-        const hpBarP2 = document.getElementById('hp-p2');
-        const statusP2 = document.getElementById('status-p2');
-
-        const dialogName = document.getElementById('dialog-name');
-        const dialogText = document.getElementById('dialog-text');
-        const menuOptions = document.getElementById('menu-options');
-        const musicElement = document.getElementById('battle-music');
-        
-        // --- 3. FUNÇÕES DE RENDERIZAÇÃO E MÍDIA ---
-        
-        function startMusic() {
-            musicElement.volume = 0.5;
-            musicElement.play().catch(error => {
-                // Tenta iniciar a música após o primeiro clique do usuário em qualquer lugar
-                document.body.addEventListener('click', () => {
-                    musicElement.play().catch(e => console.error("Erro ao tocar a música:", e));
-                }, { once: true });
-            });
-        }
-
-        function renderStatus() {
-            // Player 1
-            nameP1.textContent = p1.name.toUpperCase();
-            speedP1.textContent = `Speed: ${p1.currentSpeed}`;
-            maxHpP1.textContent = p1.maxHp;
-            currentHpP1.textContent = p1.currentHp;
-            hpBarP1.style.width = `${(p1.currentHp / p1.maxHp) * 100}%`;
-            // Atualiza status de DoT
-            if (p1.dotDuration > 0) {
-                 statusP1.textContent = `[${p1.dotType}: ${p1.dotDuration}]`;
-                 statusP1.style.color = (p1.dotType === 'SANGRAMENTO') ? '#FF3333' : '#9900CC';
-            } else {
-                 statusP1.textContent = '';
-            }
+    <!-- SPRITES -->
+    <div class="sprites">
+        <img th:src="@{${player.backSpriteUrl}}"
+            th:classappend="${player.currentHp == 0} ? 'fainted' : ''"
+            style="cursor: pointer;"
+            onclick="startSelectionMusic()">
 
 
-            // Player 2
-            nameP2.textContent = p2.name.toUpperCase();
-            speedP2.textContent = `Speed: ${p2.currentSpeed}`;
-            maxHpP2.textContent = p2.maxHp;
-            currentHpP2.textContent = p2.currentHp;
-            hpBarP2.style.width = `${(p2.currentHp / p2.maxHp) * 100}%`;
-             // Atualiza status de DoT
-             if (p2.dotDuration > 0) {
-                 statusP2.textContent = `[${p2.dotType}: ${p2.dotDuration}]`;
-                 statusP2.style.color = (p2.dotType === 'SANGRAMENTO') ? '#FF3333' : '#9900CC';
-            } else {
-                 statusP2.textContent = '';
-            }
-        }
+        <img th:src="@{${ai.spriteUrl}}"
+             th:classappend="${ai.currentHp == 0} ? 'fainted' : ''"
+             style="margin-bottom: 30px;">
+    </div>
 
-        // Injeta os sprites dos personagens
-        function injectSprites() {
-            const spriteP1Div = document.getElementById('sprite-p1');
-            const spriteP2Div = document.getElementById('sprite-p2');
-            
-            // P1 Sprite: usa o ID do personagem (ex: snormax.png)
-            let img1 = document.createElement('img');
-            img1.src = `sprites/${p1.id.toLowerCase()}.jpeg`;
-            img1.alt = `${p1.name} Sprite`;
-            spriteP1Div.appendChild(img1);
-            
-            // P2 Sprite
-            let img2 = document.createElement('img');
-            img2.src = `sprites/${p2.id.toLowerCase()}.jpeg`;
-            img2.alt = `${p2.name} Sprite`;
-            spriteP2Div.appendChild(img2);
-        }
-        
-        // Cria o menu de ações do P1
-        function renderActionsMenu() {
-            menuOptions.innerHTML = '';
-            
-            p1.abilities.forEach((ability, index) => {
-                const button = document.createElement('button');
-                button.className = 'action-button';
-                // Mostra o nome e a contagem de usos
-                button.textContent = `${ability.name} (${ability.currentUses})`;
-                button.onclick = () => handlePlayerAction(index);
-                
-                // Desabilita o botão se não for a vez do P1 ou não houver usos
-                button.disabled = !isPlayerTurn || (ability.currentUses <= 0);
-                
-                menuOptions.appendChild(button);
-            });
-        }
-        
-        // --- 4. FUNÇÕES DE CÁLCULO DE EFEITOS ---
-        // (Mantidas do código anterior, com a lógica de usos funcional)
+    <!-- LOG + MOVES -->
+    <div class="battle-bottom">
 
-        function applyDamage(target, damage) {
-            damage = Math.max(0, damage);
-            target.currentHp = Math.max(0, target.currentHp - damage);
-            return damage;
-        }
+        <!-- LOG -->
+        <div class="log-box">
+            <div th:each="line : ${log}">
+                <span th:text="${line}"></span><br>
+            </div>
+        </div>
 
-        function applyRegen(target, regen) {
-            regen = Math.max(0, regen);
-            const actualRegen = Math.min(regen, target.maxHp - target.currentHp);
-            target.currentHp = target.currentHp + actualRegen;
-            return actualRegen;
-        }
-        
-        function applySpeedChange(target, amount) {
-            target.currentSpeed = Math.max(0, target.currentSpeed + amount);
-        }
-        
-        function applyDoT(target, damage, duration, type) {
-            target.dotDamage = damage;
-            target.dotDuration = duration;
-            target.dotType = type;
-        }
+        <!-- MOVES EM 2x2 -->
+        <div class="moves">
+            <div th:each="move, iter : ${player.moves}">
+                <form th:action="@{|/battle/turn/${iter.index}|}" method="post">
+                    <button class="move-btn"
+                            type="submit"
+                            th:disabled="${move.remainingUses == 0}"
+                            th:title="${move.description}">
+                        <span th:text="${move.name}"></span><br>
+                        (<span th:text="${move.remainingUses}"></span> /
+                        <span th:text="${move.maxUses}"></span>)
+                    </button>
+                </form>
+            </div>
+        </div>
 
-        // Processa os efeitos de uma habilidade
-        function processAbility(user, target, ability) {
-            let message = `${user.name} usou ${ability.name}.\n`;
-            let damageMatch, regenMatch, speedMatch, dotMatch;
-            
-            // 1. Dano
-            if (damageMatch = ability.details.match(/(\d+) dano/i)) {
-                const damage = parseInt(damageMatch[1]);
-                const actualDamage = applyDamage(target, damage);
-                message += `Causou ${actualDamage} de dano em ${target.name}. `;
-            }
-            
-            // 2. Regeneração (Vida Própria)
-            if (regenMatch = ability.details.match(/regen (\d+) vida/i)) {
-                const regen = parseInt(regenMatch[1]);
-                const actualRegen = applyRegen(user, regen);
-                if (actualRegen > 0) message += `Regenerou ${actualRegen} de vida. `;
-            }
-            
-            // 3. Modificadores de Speed (Próprio)
-            if (speedMatch = ability.details.match(/\+(\d+) speed/i)) {
-                const amount = parseInt(speedMatch[1]);
-                applySpeedChange(user, amount);
-                message += `Speed de ${user.name} aumentou em ${amount}. `;
-            }
-            
-            if (speedMatch = ability.details.match(/(-)(\d+) speed próprio/i)) {
-                const amount = parseInt(speedMatch[2]);
-                applySpeedChange(user, -amount);
-                message += `Speed de ${user.name} diminuiu em ${amount}. `;
-            }
-            
-            // 4. Modificadores de Speed (Inimigo)
-            if (speedMatch = ability.details.match(/(-)(\d+) de speed inimigo/i)) {
-                const amount = parseInt(speedMatch[2]);
-                applySpeedChange(target, -amount);
-                message += `Speed de ${target.name} diminuiu em ${amount}. `;
-            }
-            
-            // 5. DoT (Veneno/Sangramento)
-            if (dotMatch = ability.details.match(/\+(\d+) de (veneno|sangramento) durante (\d+) rodadas/i)) {
-                const damage = parseInt(dotMatch[1]);
-                const type = dotMatch[2].toUpperCase();
-                const duration = parseInt(dotMatch[3]);
-                applyDoT(target, damage, duration, type);
-                message += `${target.name} foi afetado por ${type}! `;
-            }
-            
-            return message.trim();
-        }
+    </div>
 
-        // Aplica o dano ao longo do tempo (DoT) no início do turno
-        function applyDoTEffect(target) {
-            if (target.dotDuration > 0) {
-                const damage = target.dotDamage;
-                const message = `${target.name} sofreu ${damage} de dano de ${target.dotType}! `;
-                applyDamage(target, damage);
-                target.dotDuration--;
-                return message;
-            }
-            return '';
-        }
+</div>
 
-        // --- 5. FLUXO DE JOGO ---
-        
-        function checkGameOver() {
-            if (p1.currentHp <= 0) {
-                dialogText.textContent = `${p1.name} foi derrotado! ${p2.name} (IA) venceu!`;
-                isPlayerTurn = false;
-                menuOptions.innerHTML = '<button disabled>GAME OVER</button>';
-                return true;
-            }
-            if (p2.currentHp <= 0) {
-                dialogText.textContent = `${p2.name} foi derrotado! ${p1.name} venceu a batalha!`;
-                isPlayerTurn = false;
-                menuOptions.innerHTML = '<button disabled>VITÓRIA</button>';
-                return true;
-            }
-            return false;
-        }
+<!-- MÚSICA DA BATALHA -->
+<audio id="battle-audio" src="/audio/batalhar.mp3" preload="auto" autoplay loop></audio>
 
-        // Ação do Player 1
-        function handlePlayerAction(abilityIndex) {
-            if (!isPlayerTurn || checkGameOver()) return;
-            isPlayerTurn = false; 
-            
-            const ability = p1.abilities[abilityIndex];
-            
-            // Reduz uso e processa
-            ability.currentUses--;
-            const message = processAbility(p1, p2, ability);
-            dialogText.textContent = message;
+<script>
+    const battleMusic = document.getElementById("battle-audio");
 
-            renderStatus();
-            
-            if (checkGameOver()) return;
+    window.addEventListener("load", () => {
+        battleMusic.volume = 0.6;
+        battleMusic.play().catch(() => {
+            // Caso o navegador bloqueie, libera após 1 clique
+            document.body.addEventListener("click", () => battleMusic.play(), { once: true });
+        });
+    });
+</script>
 
-            // Passa para a IA após um atraso
-            setTimeout(startIATurn, 1500);
-        }
-        
-        // Turno da IA (P2)
-        function startIATurn() {
-            // 1. Aplica DoT no P2
-            let dotMessage = applyDoTEffect(p2);
-            
-            setTimeout(() => {
-                if (dotMessage) {
-                    dialogText.textContent = dotMessage;
-                    renderStatus();
-                    if (checkGameOver()) return;
-                }
-                
-                // 2. Escolhe e executa a ação da IA
-                setTimeout(simulateIAAction, dotMessage ? 1000 : 0);
-            }, 500); 
-        }
 
-        function simulateIAAction() {
-            const usableAbilities = p2.abilities.filter(a => a.currentUses > 0);
-            if (usableAbilities.length === 0) {
-                dialogText.textContent = `${p2.name} está sem habilidades! Passou a vez.`;
-                isPlayerTurn = true;
-                renderStatus();
-                renderActionsMenu();
-                return;
-            } 
-
-            // Lógica simples: IA escolhe aleatoriamente
-            const iaAbility = usableAbilities[Math.floor(Math.random() * usableAbilities.length)];
-            const iaAbilityIndex = p2.abilities.findIndex(a => a.name === iaAbility.name);
-            
-            p2.abilities[iaAbilityIndex].currentUses--;
-            
-            const message = processAbility(p2, p1, iaAbility);
-            dialogText.textContent = message;
-
-            renderStatus();
-            if (checkGameOver()) return;
-
-            // 3. Aplica DoT no P1 no final do turno da IA (início do próximo turno do P1)
-             let dotMessage = applyDoTEffect(p1);
-            
-            setTimeout(() => {
-                if (dotMessage) {
-                    dialogText.textContent += ` ${dotMessage}`;
-                    renderStatus();
-                    if (checkGameOver()) return;
-                }
-                
-                // Passa a vez de volta para o Player 1
-                isPlayerTurn = true;
-                renderStatus();
-                renderActionsMenu();
-                dialogText.textContent = `É a vez de ${p1.name}! O que ele fará?`;
-            }, 1000); 
-        }
-
-        // --- 6. INICIALIZAÇÃO DA PÁGINA ---
-
-        function initializeBattle() {
-            startMusic();
-            renderStatus();
-            injectSprites();
-            
-            // Define quem começa baseado na velocidade
-            if (p2.currentSpeed > p1.currentSpeed) {
-                isPlayerTurn = false;
-                dialogText.textContent = `${p2.name} é mais rápido e ataca primeiro!`;
-                // Renderiza o menu desabilitado e inicia o turno da IA
-                renderActionsMenu(); 
-                setTimeout(startIATurn, 1500);
-            } else {
-                isPlayerTurn = true;
-                dialogText.textContent = `A batalha começa! É a vez de ${p1.name}.`;
-                renderActionsMenu();
-            }
-        }
-
-        initializeBattle();
-        // FIM DO JAVASCRIPT
-    </script>
 </body>
 </html>

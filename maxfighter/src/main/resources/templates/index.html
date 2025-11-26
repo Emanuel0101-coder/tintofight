@@ -3,177 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MaxFighter - Start</title>
+    <title>Max Fighter - Início</title>
+
+    <!-- Fonte pixel -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
     <style>
-        /*
-         * ESTILOS CSS - INÍCIO
-         */
-
-        :root {
-            /* Cores mais vibrantes */
-            --color-text: #FFEB3B;
-            --color-button-bg: #E65100;
-            --color-button-border: #BF360C;
-            --color-shadow: #111111;
-            --color-background-overlay: rgba(0, 0, 0, 0.3);
-            --color-title-glow: #FFD600;
-        }
-
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Press Start 2P', cursive, 'Courier New', monospace;
-            overflow: hidden;
-            background-color: #222;
-        }
-
-        /* Animação para o fundo */
-        @keyframes subtleZoom {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
-        .background-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('start.jpeg');
+            font-family: "Press Start 2P", cursive;
+            background: url('/img/logo.png') no-repeat center center fixed;
             background-size: cover;
-            background-position: center;
-            image-rendering: pixelated;
-            filter: brightness(0.9);
-            z-index: -1;
-
-            /* Aplica a animação de zoom sutil ao fundo */
-            animation: subtleZoom 15s infinite ease-in-out;
-            transform-origin: center center;
-        }
-
-        .container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end; /* botão embaixo */
             align-items: center;
             height: 100vh;
+        }
+
+        /* Caixa central do título */
+        .title-box {
+            position: absolute;
+            top: 12%;
             text-align: center;
-            padding-bottom: 100px;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 1; /* Garante que o menu fique sobre o fundo */
+            color: white;
+            text-shadow: 4px 4px #000;
         }
 
-        /* Animação para o brilho do título */
-        @keyframes titleGlow {
-            0% { text-shadow: -5px -5px 0 var(--color-shadow), 5px -5px 0 var(--color-shadow), -5px 5px 0 var(--color-shadow), 5px 5px 0 var(--color-shadow), 0 0 10px var(--color-title-glow); }
-            50% { text-shadow: -5px -5px 0 var(--color-shadow), 5px -5px 0 var(--color-shadow), -5px 5px 0 var(--color-shadow), 5px 5px 0 var(--color-shadow), 0 0 20px var(--color-title-glow); }
-            100% { text-shadow: -5px -5px 0 var(--color-shadow), 5px -5px 0 var(--color-shadow), -5px 5px 0 var(--color-shadow), 5px 5px 0 var(--color-shadow), 0 0 10px var(--color-title-glow); }
+        .title-box h1 {
+            font-size: 48px;
+            margin: 0;
         }
 
-        .game-title {
-            font-size: 8rem;
-            color: var(--color-text);
+        .subtitle {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Botão iniciar */
+        .start-btn {
             margin-bottom: 50px;
-            letter-spacing: 5px;
-            animation: titleGlow 3s infinite ease-in-out; 
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Estilização dos Botões */
-        .buttons-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Animação para o brilho sutil dos botões */
-        @keyframes buttonPulse {
-            0%, 100% { border-color: var(--color-button-border); }
-            50% { border-color: #FF7043; }
-        }
-
-        .menu-button {
-            font-family: 'Press Start 2P', cursive, 'Courier New', monospace;
-            font-size: 2.5rem;
-            color: var(--color-text);
-            background-color: var(--color-button-bg);
-            border: 5px solid var(--color-button-border);
-            padding: 15px 40px;
+            padding: 18px 40px;
+            background: #ff9c00;
+            color: #000;
+            border: 4px solid #000;
+            border-radius: 8px;
+            font-size: 18px;
             cursor: pointer;
-            text-transform: uppercase;
-            width: 300px;
-            box-shadow: 8px 8px 0 var(--color-shadow);
-            transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
-            image-rendering: pixelated;
-            position: relative;
-            z-index: 5;
-            animation: buttonPulse 4s infinite ease-in-out;
+            text-decoration: none;
+            text-shadow: 2px 2px #fff;
         }
 
-        .menu-button:hover {
-            background-color: #FF7043;
-            transform: translateY(-5px);
-            box-shadow: 12px 12px 0 var(--color-shadow);
-            text-shadow: 0 0 5px var(--color-text);
+        .start-btn:hover {
+            background: #ffc04d;
+            transform: scale(1.05);
         }
-
-        .menu-button:active {
-            transform: translate(5px, 5px);
-            box-shadow: 0 0 0 var(--color-shadow);
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
 
     </style>
 </head>
+
 <body>
 
-    <div class="background-container"></div>
-
-    <div class="container">
-        <h1 class="game-title">MaxFighter</h1>
-
-        <div class="buttons-container">
-            <button id="start-btn" class="menu-button">Start</button>
-            <button id="options-btn" class="menu-button">Options</button>
-            <button id="credits-btn" class="menu-button">Credits</button>
-        </div>
+    <!-- Título pixelado -->
+    <div class="title-box">
+        <h1>MAX FIGHTER</h1>
+        <div class="subtitle">O novo jogo de batalha por turnos!</div>
     </div>
 
-    <script>
-        // JAVASCRIPT - INÍCIO
+   <a href="/battle/select" 
+   class="start-btn"
+   style="
+       display:inline-block;
+       padding:20px 50px;
+       background:#ff9800;
+       border:4px solid black;
+       border-radius:12px;
+       font-family:'Press Start 2P';
+       font-size:22px;
+       color:black;
+       text-decoration:none;
+       box-shadow:6px 6px 0 #000;
+       animation: float 2s ease-in-out infinite;
+   ">
+   ▶ Iniciar Jogo
+</a>
 
-        function startMusic() {
-            const audio = new Audio('trilha.mp3'); // Seu arquivo de música
-            audio.loop = true;
-            audio.volume = 0.5;
 
-            audio.play().catch(error => {
-                // Tenta iniciar após o primeiro clique do usuário
-                document.body.addEventListener('click', () => {
-                    audio.play().catch(e => console.error("Erro ao tentar tocar a música após o clique:", e));
-                }, { once: true });
-            });
-        }
-
-        // REDIRECIONA PARA A PRÓXIMA TELA (select.html)
-        document.getElementById('start-btn').onclick = () => {
-            window.location.href = 'start.html';
-        };
-        
-        document.getElementById('options-btn').onclick = () => {
-            alert('Direcionando para a página de Opções!');
-            // window.location.href = 'options.html';
-        };
-        document.getElementById('credits-btn').onclick = () => {
-            alert('Direcionando para a página de Créditos!');
-            // window.location.href = 'credits.html';
-        };
-
-        startMusic();
-        // JAVASCRIPT - FIM
-    </script>
 </body>
 </html>

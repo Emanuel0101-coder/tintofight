@@ -289,6 +289,7 @@ public class BattleService {
                 new Move("Trabalhar no sábado", 20, MoveType.DEBUFF_SPEED, "-20 Speed do inimigo.", 10)
         ));
         f.setSpriteUrl("/img/snormax.png");
+        f.setBackSpriteUrl("/img/snormaxcosta.png");
         return f;
     }
 
@@ -301,6 +302,7 @@ public class BattleService {
                 new Move("Golpe 4", 40, MoveType.DAMAGE, "", 99)
         ));
         f.setSpriteUrl("/img/bot.png");
+        f.setBackSpriteUrl("/img/bot.png");
         return f;
     }
 
@@ -334,7 +336,8 @@ public class BattleService {
                         3
                 )
         ));
-        f.setSpriteUrl(null);
+        f.setSpriteUrl("/img/tintacruel.png");
+        f.setBackSpriteUrl("/img/tintacosta.png");
         return f;
     }
 
@@ -351,7 +354,8 @@ public class BattleService {
                 // baldada: 30 dano usos:15
                 new Move("Baldada", 30, MoveType.DAMAGE, "Causa 30 de dano.", 15)
         ));
-        f.setSpriteUrl(null);
+        f.setSpriteUrl("/img/baldestoise.png");
+        f.setBackSpriteUrl("/img/baldestoisecosta.png");
         return f;
     }
 
@@ -386,7 +390,8 @@ public class BattleService {
                 // rabiscar: 45 dano usos:7
                 new Move("Rabiscar", 45, MoveType.DAMAGE, "Causa 45 de dano.", 7)
         ));
-        f.setSpriteUrl(null);
+        f.setSpriteUrl("/img/weepincel.png");
+        f.setBackSpriteUrl("/img/weepincelcosta.png");
         return f;
     }
 
@@ -412,6 +417,7 @@ public class BattleService {
                 new Move("Tinta comestível", 15, MoveType.DEBUFF_SPEED, "-15 Speed do inimigo.", 10)
         ));
         f.setSpriteUrl("/img/colorfable.png");
+        f.setBackSpriteUrl("/img/colorfablecosta.png");
         return f;
     }
 
@@ -428,7 +434,8 @@ public class BattleService {
                 // apagar: 65 dano usos:3
                 new Move("Apagar", 65, MoveType.DAMAGE, "Causa 65 de dano.", 3)
         ));
-        f.setSpriteUrl(null);
+        f.setSpriteUrl("/img/borrachauro.png");
+        f.setBackSpriteUrl("/img/borrachaurocosta.png");
         return f;
     }
 
@@ -463,7 +470,8 @@ public class BattleService {
                         false
                 )
         ));
-        f.setSpriteUrl(null);
+        f.setSpriteUrl("/img/caterprimer.png");
+        f.setBackSpriteUrl("/img/caterprimercosta.png");
         return f;
     }
 
@@ -489,6 +497,7 @@ public class BattleService {
                 new Move("Lixas maiores", 30, MoveType.HEAL, "Regenera 30 de vida.", 5)
         ));
         f.setSpriteUrl("/img/hitmonlixa.png");
+        f.setBackSpriteUrl("/img/hitmoncosta.png");
         return f;
     }
 }

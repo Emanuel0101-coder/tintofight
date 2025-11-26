@@ -17,8 +17,9 @@ public class Fighter {
     private int poisonDamagePerTurn;
     private int poisonRemainingTurns;
 
-    // Sprite (caminho dentro de /static/img)
-    private String spriteUrl;
+    // Sprites (frente e costas)
+    private String spriteUrl;      // Frente (sempre o inimigo)
+    private String backSpriteUrl;  // Costas (sempre o player)
 
     public Fighter(String name, int maxHp, int speed, List<Move> moves) {
         this.name = name;
@@ -96,8 +97,7 @@ public class Fighter {
         this.poisonRemainingTurns = poisonRemainingTurns;
     }
 
-    // Compatibilidade com nome usado no battle.html:
-    // player.poisonTurnsRemaining / ai.poisonTurnsRemaining
+    // Compatibilidade usada no HTML
     public int getPoisonTurnsRemaining() {
         return poisonRemainingTurns;
     }
@@ -106,7 +106,7 @@ public class Fighter {
         setPoisonRemainingTurns(poisonTurnsRemaining);
     }
 
-    // ========= Sprite =========
+    // ========= Sprites =========
 
     public String getSpriteUrl() {
         return spriteUrl;
@@ -114,5 +114,13 @@ public class Fighter {
 
     public void setSpriteUrl(String spriteUrl) {
         this.spriteUrl = spriteUrl;
+    }
+
+    public String getBackSpriteUrl() {
+        return backSpriteUrl;
+    }
+
+    public void setBackSpriteUrl(String backSpriteUrl) {
+        this.backSpriteUrl = backSpriteUrl;
     }
 }
