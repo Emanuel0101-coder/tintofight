@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxFighter - Seleção de Personagem</title>
+    
+    <style>
+        /*
+         * ESTILOS CSS - TELA DE SELEÇÃO
+         */
+
+        :root {
+            --color-background: #C4A484; /* Bege de fundo principal */
+            --color-inner-bg: #EED7B8; /* Bege mais claro para a área de seleção */
+            --color-border-dark: #4D281F; /* Marrom escuro */
+            --color-text-dark: #333333; /* Texto principal */
+            --color-title-light: #FFEB3B; /* Amarelo do título */
+            --color-selection-border: #FF7043; /* Laranja da seleção */
+            --color-player1: #C43030; /* Vermelho Player 1 */
+            --color-player2: #306DC4; /* Azul Player 2 */
+            --color-locked: #8D8D8D; /* Cinza para slots bloqueados */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            background-color: var(--color-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: url('select.jpeg');
+            background-size: cover;
+            background-position: center;
+            image-rendering: pixelated;
+        }
+
+        /* Container principal para centralizar o conteúdo */
+        .select-container {
+            width: 90%;
+            max-width: 1000px;
+            padding: 30px;
+            box-sizing: border-box;
+            background-color: var(--color-inner-bg);
+            border: 10px solid var(--color-border-dark);
+            box-shadow: 0 0 0 15px var(--color-background); 
+            border-radius: 5px;
+            text-align: center;
+            position: relative;
+            background-color: rgba(238, 215, 184, 0.9); 
+        }
+
+        /* Título */
+        .title-select {
+            font-size: 3rem;
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0px var(--color-border-dark);
+            line-height: 1.2;
+        }
+
+        .title-select span {
+            color: var(--color-selection-border);
+            text-shadow: 4px 4px 0px var(--color-border-dark), 0 0 10px var(--color-title-light);
+            display: block; 
+            font-size: 4rem;
+        }
+
+        /* GRID DE PERSONAGENS */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: var(--color-background); 
+            border: 5px solid var(--color-border-dark);
+            image-rendering: pixelated;
+        }
+
+        /* CAIXA DE PERSONAGEM (SLOT) */
+        .char-slot {
+            background-color: var(--color-inner-bg);
+            border: 4px solid var(--color-border-dark);
+            padding: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            position: relative;
+            min-height: 150px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .char-slot:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 0 0 var(--color-border-dark);
+        }
+
+        /* Slot Aleatório/Random (Diferenciado) */
+        .char-slot.random {
+            background-color: #6C5441;
+            color: var(--color-title-light);
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 2px 2px 0 var(--color-border-dark);
+            font-weight: bold;
+        }
+
+        /* Estilo para a imagem de sprite */
+        .char-image-placeholder {
+            width: 100px; 
+            height: 100px;
+            margin-bottom: 5px;
+            border: 2px dashed var(--color-border-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* AQUI: Ajuste para preencher o quadrado inteiro */
+        .char-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill; /* Força a imagem a preencher o container */
+            image-rendering: pixelated;
+        }
+
+        /* Nome do Personagem */
+        .char-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--color-text-dark);
+            text-transform: uppercase;
+        }
+
+        /* STATUS E DETALHES (Barra Lateral/Detalhe) */
+        .status-area {
+            position: absolute; 
+            top: 20px;
+            left: 5%;
+            width: 180px;
+            padding: 10px;
+            text-align: left;
+            background-color: rgba(77, 40, 31, 0.8); 
+            border: 3px solid var(--color-title-light);
+            color: white;
+            font-size: 0.7rem;
+            opacity: 0; 
+            transition: opacity 0.3s;
+            pointer-events: none; 
+            z-index: 20;
+        }
+
+        .status-area.visible {
+            opacity: 1;
+        }
+
+        /* Rodapé (Informações de Jogador) */
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 3px solid var(--color-border-dark);
+            margin-top: 20px;
+        }
+
+        .player-status {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .player-status.p1 { color: var(--color-player1); }
+        .player-status.p2 { color: var(--color-player2); }
+
+        .press-start {
+            font-size: 1.5rem;
+            color: var(--color-title-light);
+            text-shadow: 2px 2px 0 var(--color-border-dark);
+            animation: pulse 1s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.5; }
+        }
+
+        /* --- NOVO: ESTILO PARA O MODAL DE HABILIDADES --- */
+        #modal-abilities {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            background-color: var(--color-inner-bg);
+            border: 5px solid var(--color-border-dark);
+            box-shadow: 8px 8px 0 var(--color-border-dark); 
+            padding: 20px;
+            z-index: 100;
+            text-align: left;
+            display: none; 
+            image-rendering: pixelated;
+        }
+
+        #modal-abilities h3 {
+            color: var(--color-player1);
+            font-size: 1.2rem;
+            margin-top: 0;
+            text-shadow: 2px 2px 0 var(--color-border-dark);
+        }
+
+        #modal-abilities button {
+            background-color: var(--color-selection-border);
+            color: var(--color-inner-bg);
+            border: 2px solid var(--color-border-dark);
+            font-family: inherit;
+            padding: 5px 10px;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* Classe para o cursor de seleção da IA/Random */
+        .char-slot.ia-cursor {
+            border: 4px solid var(--color-title-light) !important; 
+            box-shadow: 0 0 10px var(--color-title-light);
+            transform: scale(1.05);
+            transition: transform 0.1s, box-shadow 0.1s, border 0.1s;
+        }
+        
+        /* Adicionar classe para slots já selecionados (melhora a visualização) */
+        .char-slot.p1-selected {
+            box-shadow: 0 0 15px var(--color-player1);
+            pointer-events: none; /* Desabilita clique/hover após seleção */
+        }
+        .char-slot.p2-selected {
+            box-shadow: 0 0 15px var(--color-player2);
+            pointer-events: none; /* Desabilita clique/hover após seleção */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="modal-abilities">
+        <button onclick="closeModal()">FECHAR</button>
+        <h3>Habilidades de <span id="modal-char-name"></span></h3>
+        <p>HP: <span id="modal-hp"></span> | Speed: <span id="modal-speed"></span></p>
+        <ul id="modal-abilities-list" style="padding-left: 15px; margin: 10px 0; font-size: 0.8rem;">
+            </ul>
+    </div>
+    <div class="select-container">
+
+        <h1 class="title-select">
+            Select Your <span>Paint-Emon!</span>
+        </h1>
+
+        <div id="status-display" class="status-area">
+            <h3 style="margin-top:0;">STATUS</h3>
+            <p>Nome: <span id="status-name"></span></p>
+            <p>HP: <span id="status-hp"></span></p>
+            <p>Speed: <span id="status-speed"></span></p>
+            <h4 style="margin: 5px 0;">Habilidades:</h4>
+            <ul id="status-abilities" style="padding-left: 15px; margin: 0; font-size: 0.6rem;">
+                </ul>
+        </div>
+
+        <div class="character-grid">
+            
+            <div class="char-slot" 
+                data-char-id="snormax" 
+                data-name="Snormax" 
+                data-hp="300" 
+                data-speed="10" 
+                data-abilities="abrir franquia (+10 vida, +10 speed, 7 usos)|demissão (100 dano, 1 uso)|jogar gatos (20 dano, 30 usos)|trabalhar no sábado (-20 speed inimigo, 10 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/snormax.jpeg" alt="Snormax Sprite">
+                </div>
+                <span class="char-name">Snormax</span>
+            </div>
+
+            <div class="char-slot" 
+                data-char-id="tintacruel" 
+                data-name="TintaCruel" 
+                data-hp="140" 
+                data-speed="60" 
+                data-abilities="jogar tinta (40 dano, 10 usos)|tinta xadrez (+20 speed, -20 speed inimigo, 10 usos)|tinta biodegradável (regen 40 vida, 5 usos)|thinner (30 dano, +5 veneno x3 rodadas, 10 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/tintacruel.jpeg" alt="TintaCruel Sprite">
+                </div>
+                <span class="char-name">TintaCruel</span>
+            </div>
+
+            <div class="char-slot" 
+                data-char-id="baldestoise" 
+                data-name="Baldestoise" 
+                data-hp="240" 
+                data-speed="40" 
+                data-abilities="guardar tinta (regen 50 vida, 10 usos)|misturar tinta (+25 speed, 10 usos)|banho de tinta (60 dano, 10 usos)|baldada (30 dano, 15 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/baldestoise.jpeg" alt="Baldestoise Sprite">
+                </div>
+                <span class="char-name">Baldestoise</span>
+            </div>
+            
+            <div class="char-slot" 
+                data-char-id="weepincel" 
+                data-name="Weepincel" 
+                data-hp="125" 
+                data-speed="35" 
+                data-abilities="pintada (35 dano, 12 usos)|pincel maior (-5 speed próprio, regen 55 vida, 3 usos)|pincel pequeno (+30 speed, -30 vida própria, 3 usos)|rabiscar (45 dano, 7 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/weepincel.jpeg" alt="Weepincel Sprite">
+                </div>
+                <span class="char-name">Weepincel</span>
+            </div>
+
+            <div class="char-slot" 
+                data-char-id="colorfable" 
+                data-name="ColorFable" 
+                data-hp="130" 
+                data-speed="70" 
+                data-abilities="aquarela (regen 30 HP, 7 usos)|cor ácida (25 dano, +10 veneno x3 rodadas, 3 usos)|paletada (35 dano, 10 usos)|tinta comestível (-15 speed inimigo, 10 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/colorfable.jpeg" alt="ColorFable Sprite">
+                </div>
+                <span class="char-name">ColorFable</span>
+            </div>
+            
+            <div class="char-slot" 
+                data-char-id="borrachauro" 
+                data-name="Borrachauro" 
+                data-hp="175" 
+                data-speed="30" 
+                data-abilities="virar líquido (+20 speed, 5 usos)|endurecer (30 regen, 20 usos)|borrachar (35 dano, 10 usos)|apagar (65 dano, 3 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/borrachauro.jpeg" alt="Borrachauro Sprite">
+                </div>
+                <span class="char-name">Borrachauro</span>
+            </div>
+            
+            <div class="char-slot" 
+                data-char-id="caterprimer" 
+                data-name="CaterPrimer" 
+                data-hp="150" 
+                data-speed="50" 
+                data-abilities="adesão (+25 speed, 5 usos)|primer vencido (-10 speed próprio, -20 speed inimigo, 7 usos)|rebocar (30 dano, 10 usos)|colar inimigo (25 dano, -5 speed inimigo, 7 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/caterprimer.jpeg" alt="CaterPrimer Sprite">
+                </div>
+                <span class="char-name">CaterPrimer</span>
+            </div>
+            
+            <div class="char-slot" 
+                data-char-id="hitmonlixa" 
+                data-name="HitmonLixa" 
+                data-hp="120" 
+                data-speed="85" 
+                data-abilities="lixar (35 dano, 7 usos)|reutilizável (regen 20 vida, 5 usos)|corte profundo (50 dano, +10 sangramento x2 rodadas, 1 uso)|lixas maiores (+30 vida, 5 usos)">
+                <div class="char-image-placeholder">
+                    <img src="sprites/hitmonlixa.jpeg" alt="HitmonLixa Sprite">
+                </div>
+                <span class="char-name">HitmonLixa</span>
+            </div>
+            
+            <div class="char-slot random" 
+                data-char-id="random" 
+                data-name="ALEATÓRIO" 
+                data-hp="???" 
+                data-speed="???" 
+                data-abilities="SUPRESA">
+                RANDOM
+            </div>
+
+        </div>
+
+        <div class="footer-info">
+            <div class="player-status p1">PLAYER 1</div>
+            <div class="press-start">PRESS START</div>
+            <div class="player-status p2">PLAYER 2 (IA)</div>
+        </div>
+
+    </div>
+
+    <script>
+        // JAVASCRIPT - INÍCIO DA LÓGICA
+        
+        // --- ELEMENTOS E VARIÁVEIS DE ESTADO ---
+        const charSlots = document.querySelectorAll('.char-slot');
+        const statusDisplay = document.getElementById('status-display');
+        const statusName = document.getElementById('status-name');
+        const statusHP = document.getElementById('status-hp');
+        const statusSpeed = document.getElementById('status-speed');
+        const statusAbilities = document.getElementById('status-abilities');
+        
+        // Elementos do Modal
+        const modalAbilities = document.getElementById('modal-abilities');
+        const modalCharName = document.getElementById('modal-char-name');
+        const modalHP = document.getElementById('modal-hp');
+        const modalSpeed = document.getElementById('modal-speed');
+        const modalAbilitiesList = document.getElementById('modal-abilities-list');
+
+        let player1Selection = null;
+        let player2Selection = null;
+        let isSelecting = false; // Flag unificada para seleção P1 ou P2
+
+        // --- FUNÇÕES DE INTERFACE ---
+
+        // 1. Música de Fundo
+        function startMusic() {
+            const audio = new Audio('select.mp3'); 
+            audio.loop = true;
+            audio.volume = 0.4;
+            audio.play().catch(error => {
+                document.body.addEventListener('click', () => {
+                    audio.play().catch(e => console.error("Erro ao tocar a música:", e));
+                }, { once: true });
+            });
+        }
+
+        // 2. Abrir Modal de Habilidades (Clique Duplo)
+        function openModal(slot) {
+            modalCharName.textContent = slot.dataset.name;
+            modalHP.textContent = slot.dataset.hp;
+            modalSpeed.textContent = slot.dataset.speed;
+            
+            modalAbilitiesList.innerHTML = '';
+            const abilitiesData = slot.dataset.abilities;
+            if (abilitiesData && abilitiesData !== "SUPRESA") {
+                const abilities = abilitiesData.split('|');
+                abilities.forEach(ability => {
+                    const li = document.createElement('li');
+                    li.textContent = ability.trim();
+                    modalAbilitiesList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = abilitiesData || "Sem Habilidades";
+                modalAbilitiesList.appendChild(li);
+            }
+
+            modalAbilities.style.display = 'block';
+        }
+
+        // 3. Fechar Modal de Habilidades
+        window.closeModal = function() {
+            modalAbilities.style.display = 'none';
+        }
+
+
+        // --- LÓGICA DE SELEÇÃO E ANIMAÇÃO DA IA ---
+
+        /**
+         * 4. Função que anima a passagem de slots para seleção aleatória (P1 Random ou P2 IA).
+         * @param {string} selectingPlayerId - 'p1' ou 'p2'
+         * @param {Function} callback - Função a ser chamada com o slot selecionado
+         */
+        function animateSelection(selectingPlayerId, callback) {
+            isSelecting = true;
+            
+            // Filtra os slots disponíveis (exclui o que já foi selecionado pelo adversário e o Random se for P2)
+            const exclusionId = (selectingPlayerId === 'p1') ? null : player1Selection;
+            
+            const availableSlots = Array.from(charSlots).filter(slot => {
+                // Exclui o slot Random se for a IA selecionando
+                if (selectingPlayerId === 'p2' && slot.dataset.charId === 'random') return false; 
+                // Exclui o slot já selecionado
+                if (slot.dataset.charId === exclusionId) return false;
+                
+                return true;
+            });
+
+            if (availableSlots.length === 0) return callback(null);
+
+            let currentIndex = 0;
+            const totalPasses = 15; 
+            
+            const animationInterval = setInterval(() => {
+                // Remove o destaque do slot anterior
+                if (currentIndex > 0) {
+                    availableSlots[(currentIndex - 1) % availableSlots.length].classList.remove('ia-cursor');
+                }
+                
+                // Adiciona destaque ao slot atual
+                const currentSlot = availableSlots[currentIndex % availableSlots.length];
+                currentSlot.classList.add('ia-cursor');
+
+                currentIndex++;
+
+                if (currentIndex > totalPasses) {
+                    clearInterval(animationInterval);
+                    // Escolhe o personagem final
+                    const finalIndex = Math.floor(Math.random() * availableSlots.length);
+                    const finalSlot = availableSlots[finalIndex];
+
+                    // Remove o destaque dos outros
+                    availableSlots.forEach(slot => slot.classList.remove('ia-cursor'));
+                    
+                    isSelecting = false;
+                    callback(finalSlot, selectingPlayerId);
+                }
+            }, 200); // Velocidade de 200ms por slot
+        }
+
+        /**
+         * 5. Finaliza a Seleção e salva no LocalStorage.
+         * @param {HTMLElement} selectedSlot - O slot de personagem selecionado.
+         * @param {string} playerId - 'p1' ou 'p2'.
+         */
+        function finalizeSelection(selectedSlot, playerId) {
+            if (!selectedSlot) return;
+
+            const charId = selectedSlot.dataset.charId;
+            const charName = selectedSlot.dataset.name;
+            const borderClass = (playerId === 'p1') ? 'p1-selected' : 'p2-selected';
+            const borderColor = (playerId === 'p1') ? 'var(--color-player1)' : 'var(--color-player2)';
+
+            // Atualiza estado global
+            if (playerId === 'p1') {
+                player1Selection = charId;
+            } else {
+                player2Selection = charId;
+            }
+            
+            // Marca o slot
+            selectedSlot.style.border = `4px solid ${borderColor}`; 
+            selectedSlot.classList.add(borderClass);
+
+            // Salva no LocalStorage
+            localStorage.setItem(`player${playerId.slice(-1)}CharId`, charId);
+            localStorage.setItem(`player${playerId.slice(-1)}CharName`, charName);
+            localStorage.setItem(`player${playerId.slice(-1)}CharHP`, selectedSlot.dataset.hp);
+            localStorage.setItem(`player${playerId.slice(-1)}CharSpeed`, selectedSlot.dataset.speed);
+            localStorage.setItem(`player${playerId.slice(-1)}CharAbilities`, selectedSlot.dataset.abilities);
+            
+            // Se o P1 acabou de selecionar, inicia a IA
+            if (playerId === 'p1' && !player2Selection) {
+                setTimeout(() => {
+                    animateSelection('p2', finalizeSelection);
+                }, 1000);
+            }
+            // Se ambos selecionaram, redireciona
+            else if (player1Selection && player2Selection) {
+                 setTimeout(() => {
+                    window.location.href = 'game.html'; 
+                }, 1500);
+            }
+        }
+
+        // --- INICIALIZAÇÃO DE EVENTOS ---
+
+        charSlots.forEach(slot => {
+            // Eventos de Hover (Barra Lateral)
+            slot.addEventListener('mouseenter', () => {
+                // ... (Lógica de mouseenter permanece a mesma)
+                const name = slot.dataset.name;
+                const hp = slot.dataset.hp;
+                const speed = slot.dataset.speed;
+                const abilitiesData = slot.dataset.abilities;
+
+                statusName.textContent = name;
+                statusHP.textContent = hp;
+                statusSpeed.textContent = speed;
+                
+                statusAbilities.innerHTML = '';
+                if (abilitiesData && abilitiesData !== "SUPRESA") {
+                    const abilities = abilitiesData.split('|');
+                    abilities.forEach(ability => {
+                        const li = document.createElement('li');
+                        li.textContent = ability.split('(')[0].trim(); 
+                        statusAbilities.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = abilitiesData || "Sem Habilidades";
+                    statusAbilities.appendChild(li);
+                }
+
+                statusDisplay.classList.add('visible');
+            });
+
+            // Esconder Status ao Mouse Leave
+            slot.addEventListener('mouseleave', () => {
+                statusDisplay.classList.remove('visible');
+            });
+            
+            // Evento 3: Seleção Principal do Player 1 (Clique Único)
+            slot.addEventListener('click', () => {
+                // Não permite clique se já estiver selecionando (animação da IA) ou se P1 já tiver escolhido
+                if (isSelecting || player1Selection) return; 
+                
+                if (slot.dataset.charId === 'random') {
+                    // SELECIONOU RANDOM: Inicia a animação para o P1
+                    animateSelection('p1', finalizeSelection);
+                } else {
+                    // SELEÇÃO DIRETA: Finaliza a seleção do P1 diretamente
+                    finalizeSelection(slot, 'p1');
+                }
+            });
+
+            // Evento 4: Clique Duplo para Modal (Mostrar Habilidades Completas)
+            slot.addEventListener('dblclick', (e) => {
+                e.stopPropagation(); 
+                openModal(slot);
+            });
+        });
+
+        // Evento no botão PRESS START (Garantir que ele só redirecione se a seleção estiver completa)
+        document.querySelector('.press-start').addEventListener('click', () => {
+            if (player1Selection && player2Selection) {
+                window.location.href = 'game.html'; 
+            } else {
+                alert('Por favor, selecione os personagens primeiro.');
+            }
+        });
+
+        // Inicia a música
+        startMusic();
+        
+        // FIM DO JAVASCRIPT
+    </script>
+</body>
+</html>

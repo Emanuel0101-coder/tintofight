@@ -20,26 +20,28 @@ public class BattleController {
     }
 
     // ==============
-    // TELA DE SELEÇÃO
+    // TELA DE SELEÇÃO  -> start.html
     // ==============
 
     @GetMapping("/select")
     public String selectFighter(Model model) {
         model.addAttribute("fighters", battleService.getAllBaseFighters());
-        return "select_fighter";
+        // agora carrega o template start.html
+        return "start";
     }
 
     @PostMapping("/select")
     public String doSelectFighter(@RequestParam String playerName) {
         battleService.startBattleWithPlayer(playerName);
-        return "redirect:/battle/ui";
+        // depois da seleção, vai para a tela de game
+        return "redirect:/battle/game";
     }
 
     // ==============
-    // TELA DE BATALHA
+    // TELA DE BATALHA -> game.html
     // ==============
 
-    @GetMapping("/ui")
+    @GetMapping("/game")
     public String battleUI(Model model) {
         Fighter player = battleService.getPlayer();
         Fighter ai = battleService.getAi();
@@ -48,13 +50,14 @@ public class BattleController {
         model.addAttribute("ai", ai);
         model.addAttribute("log", battleService.getLog());
 
-        return "battle";
+        // agora usa o template game.html
+        return "game";
     }
 
     @PostMapping("/start")
     public String startBattle() {
         battleService.startBattle();
-        return "redirect:/battle/ui";
+        return "redirect:/battle/game";
     }
 
     // ==============
@@ -79,15 +82,15 @@ public class BattleController {
         // Alguém morreu só por veneno?
         if (player.getCurrentHp() <= 0 && ai.getCurrentHp() <= 0) {
             battleService.getLog().add("Ambos caíram pelo veneno! Empate trágico!");
-            return "redirect:/battle/ui";
+            return "redirect:/battle/game";
         }
         if (player.getCurrentHp() <= 0) {
             battleService.getLog().add("Você foi derrotado pelo veneno!");
-            return "redirect:/battle/ui";
+            return "redirect:/battle/game";
         }
         if (ai.getCurrentHp() <= 0) {
             battleService.getLog().add("O oponente foi derrotado pelo veneno!");
-            return "redirect:/battle/ui";
+            return "redirect:/battle/game";
         }
 
         // 2) Define quem ataca primeiro pela SPEED
@@ -101,7 +104,7 @@ public class BattleController {
 
             if (ai.getCurrentHp() <= 0) {
                 battleService.getLog().add("Oponente derrotado!");
-                return "redirect:/battle/ui";
+                return "redirect:/battle/game";
             }
 
             // --------- IA ATACA DEPOIS ----------
@@ -123,7 +126,7 @@ public class BattleController {
 
             if (player.getCurrentHp() <= 0) {
                 battleService.getLog().add("Você foi derrotado!");
-                return "redirect:/battle/ui";
+                return "redirect:/battle/game";
             }
 
             // --------- PLAYER ATACA DEPOIS ----------
@@ -135,7 +138,7 @@ public class BattleController {
             }
         }
 
-        return "redirect:/battle/ui";
+        return "redirect:/battle/game";
     }
 
     /**

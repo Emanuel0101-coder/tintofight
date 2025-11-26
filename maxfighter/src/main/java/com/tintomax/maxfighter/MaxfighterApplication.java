@@ -17,7 +17,7 @@ public class MaxfighterApplication implements CommandLineRunner {
                 "==============================================\n" +
                 "🔥 MAXFIGHTER INICIADO COM SUCESSO! 🔥\n" +
                 "➡ Batalha funcionando e rodando em:\n" +
-                "   http://localhost:8080/battle/select\n" +
+                "   http://localhost:8080/start\n" +
                 "==============================================\n");
     }
 }
